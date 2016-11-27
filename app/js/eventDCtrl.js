@@ -2,7 +2,7 @@
 app.controller("eventDCtrl",
 
     // Implementation the todoCtrl
-    function($scope, Auth, $firebaseArray, $firebaseObject, $stateParams, $filter, Helper, ngDialog, $state) {
+    function($scope, Auth, $firebaseArray, $firebaseObject, $stateParams, $filter, Helper, ngDialog, $state, $window) {
         console.log("event detail");
 
         //initialize
@@ -14,7 +14,8 @@ app.controller("eventDCtrl",
         $scope.editingInfo=false;
         // $scope.editButton="Edit";
         $scope.isDeletingAnn = false;
-        $scope.recommandTeams = {};
+        $scope.recommandTeams = [];
+        $scope.searchText=""
         this.Object=Object;
         Auth.$onAuthStateChanged(function(authData) {
             // console.log($scope.obj);
@@ -66,6 +67,9 @@ app.controller("eventDCtrl",
         $scope.eventObj = $firebaseObject(eventRef);
         ref = firebase.database().ref("events/" + $scope.eventID+"/eventInfo");
         $scope.eventInfo = $firebaseObject(ref);
+        var ref = firebase.database().ref('events/' + $scope.eventID + '/eventInfo/announcements');
+		$scope.announcements = $firebaseArray(ref);
+        $scope.announcements.$loaded().then(function(data){console.log(data)});
         // $scope.eventObj.$loaded().then(function(data){
         //     console.log(Object.keys(data.teams).length);
         // })
@@ -82,8 +86,14 @@ app.controller("eventDCtrl",
             Helper.deleteTeam($scope.eventID,key);
         };
         $scope.addToTeam = function(id){
-            $scope.selectTeam=!$scope.selectTeam;
-            personToBeAdded=id;
+            if ($scope.selectTeam && personToBeAdded != id){
+                personToBeAdded=id; 
+            }
+            else
+            {
+                $scope.selectTeam=!$scope.selectTeam;   
+                personToBeAdded=id;              
+            }
 
         }
         $scope.toTeam=function(key){
@@ -92,7 +102,8 @@ app.controller("eventDCtrl",
             console.log(key);
         }
         $scope.deleteAnn = function(key){
-            Helper.deleteEventAnnouncement($scope.eventID,key)
+            // console.log(key);
+            Helper.deleteEventAnnouncement($scope.eventID,key);
             console.log(key + " been deleted");
         }
         $scope.invite=function(uid){
@@ -104,7 +115,9 @@ app.controller("eventDCtrl",
 
         }
         $scope.joinEvent=function(){
-            Helper.joinEvent($scope.userData.uid,$scope.eventID);
+            Helper.joinEvent($scope.userData.uid,$scope.eventID).then(function(){
+                $window.location.reload();
+            });
             // $scope.role="tba";
         }
 
@@ -310,20 +323,46 @@ app.controller("eventDCtrl",
             }
         }
 
-        $scope.recommand = function(){
-            $scope.recommandTeams = eventObj.teams;
-            for( key in $scope.recommandTeams )
-            {
-                if($scope.recommandTeams.hasOwnProperty(key))
+        $scope.recommend = function(){
+            $scope.recommandTeams=[];
+            console.log("***")
+            for( key in $scope.eventObj.teams)
+                if($scope.eventObj.teams.hasOwnProperty(key))
                 {
-                    $scope.recommandTeams[key].score = calscore($scope.recommandTeams[key].tags)
+                    temp = $scope.eventObj.teams[key];
+                    temp.key = key;
+                    $scope.recommandTeams.push(temp)
                 }
+            for( index in $scope.recommandTeams )
+            {
+                $scope.recommandTeams[index].score = calscore($scope.recommandTeams[index].tags)
             }
+            console.log($scope.recommandTeams)
         }
 
-        calscore = function(teamTags){
-            userTags = $scope.users[$scope.userData.uid].readOnly.tags;
-            
+        calscore = function(teamTags, langScore = 1, mannerScore = 2, skillScore = 3){
+            score = 0;
+            userTags = $scope.users[$scope.userData.uid].readOnly.info.tags;
+            for( key in userTags.LanguageTags )
+                if( userTags.LanguageTags[key] && teamTags.LanguageTags[key] )
+                    score += langScore;
+            for( key in userTags.MannerTags )
+                if( userTags.MannerTags[key] && teamTags.MannerTags[key] )
+                    score += mannerScore;
+            for( key in userTags.SkillTags )
+                if( teamTags.SkillTags[key]!=0 && userTags.SkillTags[key]>=teamTags.SkillTags[key] )
+                    score += skillScore;
+            return score;
+        }
+
+        $scope.teamf = function(teams){
+            var result = {};
+            angular.forEach(teams, function(value, key) {
+                if (value.hasOwnProperty('name')&&value.name.includes($scope.searchText)) {
+                    result[key] = value;
+                }
+            });
+            return result;
         }
         
     }
