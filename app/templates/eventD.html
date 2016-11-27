@@ -42,18 +42,21 @@
 		
 			<!--###############Teams###############-->
 			
-			<div class="thumbnail">
+			<div class="thumbnail fix-height-450">
 			  <div class="caption">
 			  	<!--###Title###-->
 			    <h4><i class="icon-group"></i>&nbsp;&nbsp;Teams</h4>
-			    <p>Teams in the event.</p>   
+			    <p>Teams and their tags.</p>
+			    <p><sub>
+			    	Skill tags have color. Green: we are lack of people with this skill. Red: we are abundant in people with this skill.
+			    </sub></p>
 				<p><input class="form-control" placeholder="Search by team name" type="text" name="searchName" ng-model = "searchText"/></p>
 			    <hr>
 			    <!--###Content###-->
-			    <div class="container">	
+			    <div class="fix-height-250">
 			      <div ng-repeat="(key, team) in teamf(eventObj.teams)">
 			      	<div class="row">
-							  <div class="col-md-3">
+							  <div class="col-md-7">
 					    		<a class="btn btn-primary btn-block btn-sm" type="button" ng-href="#/dashboard/event/{{eventID}}/team/{{key}}" style="text-align:left">
 					    			{{team.name}}
 					    		</a>
@@ -71,7 +74,7 @@
 				    	</div> <!--row-->
     					<!--TAGS HERE-->
 				    	<div class="row">
-				    		<div class="col-md-3">
+				    		<div class="col-md-7">
 				    			<span ng-repeat="(tagKey, tagContent) in eventObj.teams[key].tags.SkillTags" ng-if="tagContent.value != 0">
 				    				<button class="btn btn-xs btn-default" ng-style="{backgroundColor:tagContent.color}">{{tagKey}}</button>
 				    			</span>
@@ -84,8 +87,8 @@
 				    		</div> <!--col-md-3-->				    		
 				    	</div> <!--row-->
 				    	<br>
-			      </div> <!--ng-repeat-->			     
-	        </div> <!--container-->
+			      </div> <!--ng-repeat-->	
+			      </div>		     
 				</div> <!--caption-->
 			</div> <!--thumbnail-->
 			
@@ -124,15 +127,15 @@
 		<!--###############TBAs###############-->
 		
 		<div class="col-md-3">
-			<div class="thumbnail">
+			<div class="thumbnail fix-height-450">
 			  <div class="caption">
 			  	<!--###Title###-->
 			    <h4><i class="icon-umbrella"></i>&nbsp;&nbsp;TBAs</h4>
-			    <p>They belong to nowhere.</p>
+			    <p>People with pending applications or waiting for invitations.</p>
 			    <hr>
 			    <!--###Content###-->
 					<div class="container">
-						<div class="row" ng-repeat="(key, name) in eventObj.tba">
+						<div class="row padding" ng-repeat="(key, name) in eventObj.tba">
 							<div class="col-md-2">
 								<a class="btn btn-primary btn-block btn-sm" type="button" ng-href="#/dashboard/profile/{{name}}" style="text-align:left">	    
 			        		{{users[name].readOnly.name}}
@@ -153,7 +156,7 @@
 		<!--###############Announcement###############-->
 		
 		<div class="col-md-4">
-			<div class="thumbnail">
+			<div class="thumbnail fix-height-450">
 			  <div class="caption">
 			  	<!--###Title###-->
 			    <h4><i class="icon-bullhorn"></i>&nbsp;&nbsp;Announcement</h4>
