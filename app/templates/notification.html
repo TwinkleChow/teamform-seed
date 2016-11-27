@@ -9,7 +9,6 @@
             <option ng-repeat="(eid, myEvent) in myEvents" value="{{eid}}">{{events.$getRecord(eid).eventInfo.name}}</option>
         </select>
     </form>
-    <!-- <h3>Unread Notifications</h3> -->
 
     <ul>
         <li ng-repeat="(eid, myEvent) in filterEvent(myEvents, search_model)">
